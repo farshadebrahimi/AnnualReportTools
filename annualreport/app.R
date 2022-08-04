@@ -158,16 +158,46 @@ server <- function(input, output) {
       
     })
     
+    table_32 <- reactive({
     
+      #Monitored public smps by type, to date
+      #Table 3-2 first column
+      sql_string_6 <- "select sfc.asset_type, count(distinct(d.smp_id)), d.public from
+                                                fieldwork.deployment_full_cwl d
+                                                left join public.smpid_facilityid_componentid sfc on d.smp_id = sfc.smp_id
+                                                where sfc.component_id is null
+                                                and d.smp_id is not null
+                                                and d.deployment_dtime_est < '%s'
+                                                and d.public = true
+                                                group by sfc.asset_type, d.public"
+      
+      table_3_2_public_smp_bytype_todate <- dbGetQuery(con, paste(sprintf(sql_string_6,FYEND_reactive()),collapse=""))
+      
+      #CAPIT statuses indicating constructed systems are Jillian Simmons's best recommendation
+      #Table 3-2 second column
+      sql_string_7 <- "select count(*), smp_smptype from greenit_smpbestdata g where g.smp_notbuiltretired is null 
+                                            and (g.capit_status = 'Closed' 
+                                            or g.capit_status = 'Construction-Substantially Complete' 
+                                            or g.capit_status = 'Construction-Contract Closed') 
+                                            group by smp_smptype"
+      table_3_2_public_constructed_systems_total <- dbGetQuery(con,sql_string_7)
+
+      table_3_2_public_smp_bytype_todate <- table_3_2_public_smp_bytype_todate %>%
+        select(`SMP Type` = asset_type,`Monitored SMPs`=count) 
+      table_3_2_public_smp_bytype_todate[table_3_2_public_smp_bytype_todate[,"SMP Type"] == "Trench",1] <- "Infiltration/Storage Trench"
+      
+      
+      table_3_2_public_constructed_systems_total <- table_3_2_public_constructed_systems_total %>%
+        select(`SMP Type` = smp_smptype,`Total Constructed Public SMPs`=count) 
+      table_3_2_public_constructed_systems_total[table_3_2_public_constructed_systems_total[,"SMP Type"] == "Pervious Paving",1] <- "Permeable Pavement"
+
+      table_3_2 <- table_3_2_public_constructed_systems_total %>% 
+        left_join(table_3_2_public_smp_bytype_todate, by="SMP Type")
     
-    
-    
-    
-    
-    
-    
-    
-    
+      table_3_2<-table_3_2[,c(1,3,2)]  
+      return(table_3_2)
+      
+    })
     
     
     
@@ -176,7 +206,7 @@ server <- function(input, output) {
     
     #ractable table outputs
     output$`Table 3-1` <- renderReactable(reactable(table_31()))
-    output$`Table 3-2` <- renderReactable(reactable(table_32()))
+    output$`Table 3-2` <- renderReactable(reactable(table_32(),pagination = FALSE))
     output$`Table 3-3` <- renderReactable(reactable(table_33()))
     output$`Table 3-4` <- renderReactable(reactable(table_34()))
     output$`Table 3-5` <- renderReactable(reactable(table_35()))
