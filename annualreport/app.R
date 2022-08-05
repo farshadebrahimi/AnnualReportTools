@@ -18,8 +18,8 @@ library(reactablefmtr)
 
 ## Database Connection to pg9
 #connection 
-#con <- dbConnect(odbc::odbc(), dsn = "mars_testing", uid = Sys.getenv("shiny_uid_pg9"), pwd = Sys.getenv("shiny_pwd_pg9"))
-con <- odbc::dbConnect(odbc::odbc(), "mars_testing")
+con <- dbConnect(odbc::odbc(), dsn = "mars_testing", uid = Sys.getenv("shiny_uid_pg9_admin"), pwd = Sys.getenv("shiny_pwd_pg9_admin"))
+#con <- odbc::dbConnect(odbc::odbc(), "mars_testing")
 
 #FY choices for input
 years_vector <- as.character(12:99)
@@ -756,6 +756,11 @@ server <- function(input, output) {
     output$`Table 3-12` <- renderReactable(reactable(table_312()))
     output$`Table 3-13` <- renderReactable(reactable(table_313()))
     output$`Table 3-14` <- renderReactable(reactable(table_314()))
+    output$help_text <- renderText({
+      paste("A Shiny App to Populate the Annual Report Stats" , 
+            "First Version Published on 08/05/2022 by Farshad Ebrahimi",
+            sep="\n")
+    })
     
     
 }
