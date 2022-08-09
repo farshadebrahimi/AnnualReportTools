@@ -327,16 +327,15 @@
   table_3_10_private_new_systems_monitored<- dbGetQuery(con, paste(sprintf(sql_string, FYSTART, FYEND),collapse=""))
   
   #Table 3.11: Post-Construction CWL-Monitoring of Private SMPs Listed by Type 
-  #First column: Monitored private SMPs FY22
+  #First column: Monitored private SMPs to date
   
-  sql_string <- "select sfc.asset_type, count(distinct(d.smp_id)), d.public from
-                                              fieldwork.deployment_full_cwl d
-                                              left join public.smpid_facilityid_componentid sfc on d.smp_id = sfc.smp_id
-                                              where sfc.component_id is null
-                                              and d.smp_id is not null
-                                              and d.deployment_dtime_est < '%s'
-                                              and d.public = false
-                                              group by sfc.asset_type, d.public"
+  sql_string <- "select cr.\"SMPType\", count(distinct(d.smp_id)), d.public from
+                  fieldwork.deployment_full_cwl d
+                  left join planreview_view_smpsummary_crosstab_asbuiltall cr on d.smp_id = cr.\"SMPID\"::text
+                  where d.smp_id is not null
+                  and d.deployment_dtime_est < '%s'
+                  and d.public = false
+                  group by cr.\"SMPType\", d.public;"
                                                 
   table_3_11_private_monitored_smps_postcon<- dbGetQuery(con, paste(sprintf(sql_string,FYEND),collapse=""))
   
@@ -344,16 +343,16 @@
   #Second column: Total constructed private SMPs
  
   
-  sql_string <- "select count(*), sfc.asset_type
-                                from planreview_projectsmpconcat pl
-                                left join planreview_view_smp_designation de on de.\"ProjectID\" = pl.project_id
-                                 left join planreview_view_smpsummary_crosstab_asbuiltall cr on de.\"SMPID\" = cr.\"SMPID\"
-                                 left join smpid_facilityid_componentid sfc on de.\"SMPID\"::text = sfc.smp_id
-                                 where cr.\"DCIA\" is not null
-                                 and sfc.smp_id is not null
-                                 and sfc.component_id is null
-                                    group by sfc.asset_type;"
-  
+  sql_string <- "select count(*), cr.\"SMPType\"
+                  from planreview_projectsmpconcat pl
+                  left join planreview_view_smp_designation de on de.\"ProjectID\" = pl.project_id
+                  left join planreview_view_smpsummary_crosstab_asbuiltall cr on de.\"SMPID\" = cr.\"SMPID\"
+                  left join smpid_facilityid_componentid sfc on de.\"SMPID\"::text = sfc.smp_id
+                  where cr.\"DCIA\" is not null
+                  and sfc.smp_id is not null
+                  and sfc.component_id is null
+                  group by cr.\"SMPType\";"
+                    
   table_3_11_private_total_constructed_smps<- dbGetQuery(con, sql_string)
 
   #3.4.2: Private SRTs
