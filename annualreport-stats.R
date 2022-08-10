@@ -387,29 +387,27 @@
   #Table 3.13: Private SMPs with Post-Construction SRTs
   #First column: This fiscal year
   
-  sql_string <- "select sfc.asset_type, count(distinct(srt.system_id))
-                      from fieldwork.srt_full srt
-                      left join smpid_facilityid_componentid sfc on srt.system_id = sfc.system_id
-                      where sfc.component_id is null
-                      and test_date > '%s'
-                      and test_date < '%s'
-                      and public = FALSE
-                      and phase = 'Post-Construction'
-                      group by sfc.asset_type"
+  sql_string <- "select cr.\"SMPType\", count(distinct newtests.system_id) FROM 
+	(select system_id from fieldwork.srt_full srt
+    group by system_id, public
+    having min(test_date) >= '%s'
+    and min(test_date) <= '%s'
+    and public = false) newtests
+left join planreview_view_smpsummary_crosstab_asbuiltall cr on newtests.system_id = cr.\"SMPID\"::text
+group by cr.\"SMPType\""
   
   
   table_3_13_private_postcon_smp_withSRT <- dbGetQuery(con, paste(sprintf(sql_string, FYSTART, FYEND),collapse=""))
   
   #Table 3.13: Private SMPs with Post-Construction SRTs
   #2nd column: To Date
-  sql_string <-"select sfc.asset_type, count(distinct(srt.system_id))
-                      from fieldwork.srt_full srt
-                      left join smpid_facilityid_componentid sfc on srt.system_id = sfc.system_id
-                      where sfc.component_id is null
-                      and test_date < '%s'
-                      and public = FALSE
-                      and phase = 'Post-Construction'
-                      group by sfc.asset_type "
+  sql_string <-"select cr.\"SMPType\", count(distinct newtests.system_id) FROM 
+	(select system_id from fieldwork.srt_full srt
+    group by system_id, public
+    having min(test_date) <= '%s'
+    and public = false) newtests
+left join planreview_view_smpsummary_crosstab_asbuiltall cr on newtests.system_id = cr.\"SMPID\"::text
+group by cr.\"SMPType\""
   
   table_3_13_private_postcon_smp_withSRT_todate <- dbGetQuery(con, paste(sprintf(sql_string,FYEND),collapse=""))
   
