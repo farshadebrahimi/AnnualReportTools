@@ -1,12 +1,11 @@
 #
-# This is a Shiny web application for populating MARS annual reports stats. You can run the application by clicking
+# This is a Shiny web application. You can run the application by clicking
 # the 'Run App' button above.
 #
 # Find out more about building applications with Shiny here:
 #
 #    http://shiny.rstudio.com/
-# Author: Farshad Ebrahimi
-# First version published on 08/05/2022
+#
 
 library(shiny)
 library(reactable)
@@ -16,6 +15,7 @@ library(lubridate)
 library(tidyverse)
 library(dplyr)
 library(reactablefmtr)
+library(shinydashboard)
 
 ## Database Connection to pg9
 #connection 
@@ -26,100 +26,49 @@ con <- dbConnect(odbc::odbc(), dsn = "mars_testing", uid = Sys.getenv("shiny_uid
 years_vector <- as.character(12:99)
 
 # Define UI 
-ui <- fluidPage(
-  navbarPage(
-    "MARS Annual Report Stats",   
-    tabPanel("Stats", 
-             
-             sidebarLayout(
-               sidebarPanel(
-                 selectizeInput(
-                   'fy', label = 'Fiscal Year', choices = years_vector, selected = "22",
-                   options = list(maxOptions = 30)
-                 ), width = 2
-               ), 
-               mainPanel(tabsetPanel(
-                 tabPanel("Table 3-1",fluidPage(
-                   strong("Table 3-1: Summary of Post-Construction CWL Monitoring of Public SMPs"),
-                   reactableOutput("Table 3-1")
-                 )
-                 ), 
-                 tabPanel("Table 3-2",fluidPage(
-                   strong("Table 3-2: Post-Construction CWL Monitoring of Public SMPs Listed by Type "),
-                   reactableOutput("Table 3-2")
-                 )
-                 ), 
-                 tabPanel("Table 3-3",fluidPage(
-                   strong("Table 3-3: Post-Construction SRTs performed on Public Systems"),
-                   reactableOutput("Table 3-3")
-                 )
-                 ),
-                 tabPanel("Table 3-4",fluidPage(
-                   strong("Table 3-4: Public Systems with Post-Construction SRTs Performed"),
-                   reactableOutput("Table 3-4")
-                 )
-                 ),
-                 tabPanel("Table 3-5",fluidPage(
-                   strong("Table 3-5: Public Systems with CETs Administered"),
-                   reactableOutput("Table 3-5")
-                 )
-                 ),
-                 tabPanel("Table 3-6",fluidPage(
-                   strong("Table 3-6: Public Systems with Infiltration Testing Administered"),
-                   reactableOutput("Table 3-6")
-                 )
-                 ),
-                 tabPanel("Table 3-7",fluidPage(
-                   strong("Table 3-7: Construction-Phase SRTs Performed on Public Systems"),
-                   reactableOutput("Table 3-7")
-                 )
-                 ),
-                 tabPanel("Table 3-8",fluidPage(
-                   strong("Table 3-8: Public Systems with Construction-Phase SRTs Performed"),
-                   reactableOutput("Table 3-8")
-                 )
-                 ),
-                 tabPanel("Table 3-9",fluidPage(
-                   strong("Table 3-9: Groundwater Monitoring for Public GSI"),
-                   reactableOutput("Table 3-9")
-                 )
-                 ),
-                 tabPanel("Table 3-10",fluidPage(
-                   strong("Table 3-10: Summary of Post-Construction CWL Monitoring of Private SMPs"),
-                   reactableOutput("Table 3-10")
-                 )
-                 ),
-                 tabPanel("Table 3-11",fluidPage(
-                   strong("Table 3-11: Post-Construction CWL-Monitoring of Private SMPs Listed by Type "),
-                   reactableOutput("Table 3-11")
-                 )
-                 ),
-                 tabPanel("Table 3-12",fluidPage(
-                   strong("Table 3-12: Post-Construction SRTs performed on Private Systems"),
-                   reactableOutput("Table 3-12")
-                 )
-                 ),
-                 tabPanel("Table 3-13",fluidPage(
-                   strong("Table 3-13: Private SMPs with Post-Construction SRTs Performed"),
-                   reactableOutput("Table 3-13")
-                 )
-                 ),
-                 tabPanel("Table 3-14",fluidPage(
-                   strong("Table 3-14: Private Systems with CETs Administered"),
-                   reactableOutput("Table 3-14")
-                 )
-                 ) 
-               ), width = 10
-               )
-             )
-             
-          
-    ),
-    tabPanel("Help",verbatimTextOutput("help_text")
-    ),
+ui <-dashboardPage(skin = 'blue',
+                dashboardHeader(title = "MARS Annual Report Statistics", titleWidth = 300),
+                dashboardSidebar(
+                  selectizeInput(
+                    'fy', label = 'Fiscal Year', choices = years_vector, selected = "22",
+                    options = list(maxOptions = 30)
+                  ), width = 300
+                ),
+                dashboardBody(
+                  fluidPage(
+                    strong("Table 3-1: Summary of Post-Construction CWL Monitoring of Public SMPs"),
+                    reactableOutput("Table 3-1"),
+                    strong("Table 3-2: Post-Construction CWL Monitoring of Public SMPs Listed by Type "),
+                    reactableOutput("Table 3-2"),
+                    strong("Table 3-3: Post-Construction SRTs performed on Public Systems"),
+                    reactableOutput("Table 3-3"),
+                    strong("Table 3-4: Public Systems with Post-Construction SRTs Performed"),
+                    reactableOutput("Table 3-4"),
+                    strong("Table 3-5: Public Systems with CETs Administered"),
+                    reactableOutput("Table 3-5"),
+                    strong("Table 3-6: Public Systems with Infiltration Testing Administered"),
+                    reactableOutput("Table 3-6"),
+                    strong("Table 3-7: Construction-Phase SRTs Performed on Public Systems"),
+                    reactableOutput("Table 3-7"),
+                    strong("Table 3-8: Public Systems with Construction-Phase SRTs Performed"),
+                    reactableOutput("Table 3-8"),
+                    strong("Table 3-9: Groundwater Monitoring for Public GSI"),
+                    reactableOutput("Table 3-9"),
+                    strong("Table 3-10: Summary of Post-Construction CWL Monitoring of Private SMPs"),
+                    reactableOutput("Table 3-10"),
+                    strong("Table 3-11: Post-Construction CWL-Monitoring of Private SMPs Listed by Type "),
+                    reactableOutput("Table 3-11"),
+                    strong("Table 3-12: Post-Construction SRTs performed on Private Systems"),
+                    reactableOutput("Table 3-12"),
+                    strong("Table 3-13: Private SMPs with Post-Construction SRTs Performed"),
+                    reactableOutput("Table 3-13"),
+                    strong("Table 3-14: Private Systems with CETs Administered"),
+                    reactableOutput("Table 3-14")
+                  )
+                  
+                )
   )
-)
-
+  
 # backend
 server <- function(input, output) {
   
@@ -134,6 +83,8 @@ server <- function(input, output) {
     FYEND_reactive <- reactive({
     fyend_string <-"20%s-06-30 11:59:59"
     FYEND <- paste(sprintf(fyend_string, input$fy),collapse="")
+    #reset the db connection
+    con <- dbConnect(odbc::odbc(), dsn = "mars_testing", uid = Sys.getenv("shiny_uid_pg9_admin"), pwd = Sys.getenv("shiny_pwd_pg9_admin"))
     return(FYEND)
     })
     
@@ -581,43 +532,43 @@ server <- function(input, output) {
     table_311 <- reactive({
       
       #Table 3.11: Post-Construction CWL-Monitoring of Private SMPs Listed by Type 
-      #First column: Monitored private SMPs FY22
+      #First column: Monitored private SMPs to date
       
-      sql_string_29 <- "select sfc.asset_type, count(distinct(d.smp_id)), d.public from
-                                              fieldwork.deployment_full_cwl d
-                                              left join public.smpid_facilityid_componentid sfc on d.smp_id = sfc.smp_id
-                                              where sfc.component_id is null
-                                              and d.smp_id is not null
-                                              and d.deployment_dtime_est < '%s'
-                                              and d.public = false
-                                              group by sfc.asset_type, d.public"
+      sql_string_29 <- "select cr.\"SMPType\", count(distinct(d.smp_id)), d.public from
+                  fieldwork.deployment_full_cwl d
+                  left join planreview_view_smpsummary_crosstab_asbuiltall cr on d.smp_id = cr.\"SMPID\"::text
+                  where d.smp_id is not null
+                  and d.deployment_dtime_est < '%s'
+                  and d.public = false
+                  group by cr.\"SMPType\", d.public;"
       
       table_3_11_private_monitored_smps_postcon<- dbGetQuery(con, paste(sprintf(sql_string_29,FYEND_reactive()),collapse=""))
       
       
       #Second column: Total constructed private SMPs
       
-      sql_string_30 <- "select count(*), sfc.asset_type
-                                from planreview_projectsmpconcat pl
-                                left join planreview_view_smp_designation de on de.\"ProjectID\" = pl.project_id
-                                 left join planreview_view_smpsummary_crosstab_asbuiltall cr on de.\"SMPID\" = cr.\"SMPID\"
-                                 left join smpid_facilityid_componentid sfc on de.\"SMPID\"::text = sfc.smp_id
-                                 where cr.\"DCIA\" is not null
-                                 and sfc.smp_id is not null
-                                 and sfc.component_id is null
-                                    group by sfc.asset_type;"
+      
+      sql_string_30 <- "select count(*), cr.\"SMPType\"
+                  from planreview_projectsmpconcat pl
+                  left join planreview_view_smp_designation de on de.\"ProjectID\" = pl.project_id
+                  left join planreview_view_smpsummary_crosstab_asbuiltall cr on de.\"SMPID\" = cr.\"SMPID\"
+                  left join smpid_facilityid_componentid sfc on de.\"SMPID\"::text = sfc.smp_id
+                  where cr.\"DCIA\" is not null
+                  and sfc.smp_id is not null
+                  and sfc.component_id is null
+                  group by cr.\"SMPType\";"
+  
       
       table_3_11_private_total_constructed_smps<- dbGetQuery(con, sql_string_30)
       
       table_3_11_private_total_constructed_smps <- table_3_11_private_total_constructed_smps %>%
-        select(`SMP Type` = asset_type,`Total Constructed Private SMPs`=count)
+        select(`SMP Type` = SMPType,`Total Constructed Private SMPs`=count)
       table_3_11_private_monitored_smps_postcon <- table_3_11_private_monitored_smps_postcon %>%
-        select(`SMP Type` = asset_type,`Monitored SMPs`=count)
+        select(`SMP Type` = SMPType,`Monitored SMPs`=count)
       table_3_11 <- table_3_11_private_total_constructed_smps %>% 
         left_join(table_3_11_private_monitored_smps_postcon, by="SMP Type")
       table_3_11<-table_3_11[,c(1,3,2)]
       table_3_11[is.na(table_3_11)] <-  0
-      
 
       return(table_3_11)
     })
@@ -666,36 +617,35 @@ server <- function(input, output) {
       #Table 3.13: Private SMPs with Post-Construction SRTs
       #First column: This fiscal year
       
-      sql_string_33 <- "select sfc.asset_type, count(distinct(srt.system_id))
-                      from fieldwork.srt_full srt
-                      left join smpid_facilityid_componentid sfc on srt.system_id = sfc.system_id
-                      where sfc.component_id is null
-                      and test_date > '%s'
-                      and test_date < '%s'
-                      and public = FALSE
-                      and phase = 'Post-Construction'
-                      group by sfc.asset_type"
-      
-      
-      table_3_13_private_postcon_smp_withSRT <- dbGetQuery(con, paste(sprintf(sql_string_33, FYSTART_reactive(), FYEND_reactive()),collapse=""))
-      
       #Table 3.13: Private SMPs with Post-Construction SRTs
-      #2nd column: To Date
-      sql_string_34 <-"select sfc.asset_type, count(distinct(srt.system_id))
-                      from fieldwork.srt_full srt
-                      left join smpid_facilityid_componentid sfc on srt.system_id = sfc.system_id
-                      where sfc.component_id is null
-                      and test_date < '%s'
-                      and public = FALSE
-                      and phase = 'Post-Construction'
-                      group by sfc.asset_type "
+      #First column: This fiscal year
       
-      table_3_13_private_postcon_smp_withSRT_todate <- dbGetQuery(con, paste(sprintf(sql_string_34,FYEND_reactive()),collapse=""))
-      
-      
+          sql_string <- "select cr.\"SMPType\", count(distinct newtests.system_id) FROM 
+    	(select system_id from fieldwork.srt_full srt
+        group by system_id, public
+        having min(test_date) >= '%s'
+        and min(test_date) <= '%s'
+        and public = false) newtests
+    left join planreview_view_smpsummary_crosstab_asbuiltall cr on newtests.system_id = cr.\"SMPID\"::text
+    group by cr.\"SMPType\""
+          
+          
+          table_3_13_private_postcon_smp_withSRT <- dbGetQuery(con, paste(sprintf(sql_string, FYSTART_reactive(), FYEND_reactive()),collapse=""))
+          
+          #Table 3.13: Private SMPs with Post-Construction SRTs
+          #2nd column: To Date
+          sql_string <-"select cr.\"SMPType\", count(distinct newtests.system_id) FROM 
+    	(select system_id from fieldwork.srt_full srt
+        group by system_id, public
+        having min(test_date) <= '%s'
+        and public = false) newtests
+    left join planreview_view_smpsummary_crosstab_asbuiltall cr on newtests.system_id = cr.\"SMPID\"::text
+    group by cr.\"SMPType\""
+          
+      table_3_13_private_postcon_smp_withSRT_todate <- dbGetQuery(con, paste(sprintf(sql_string,FYEND_reactive()),collapse=""))
       
       table_3_13 <- table_3_13_private_postcon_smp_withSRT_todate %>%
-        left_join(table_3_13_private_postcon_smp_withSRT, by="asset_type")
+        left_join(table_3_13_private_postcon_smp_withSRT, by="SMPType")
       
       table_3_13[is.na(table_3_13)] <-  0
       table_3_13<-table_3_13[,c(1,3,2)]
@@ -768,3 +718,7 @@ server <- function(input, output) {
 
 # Run the application 
 shinyApp(ui = ui, server = server)
+
+
+
+  
