@@ -289,10 +289,10 @@
   
   sql_string <- "select count(*) from fieldwork.deployment_full_cwl
                                   where (collection_dtime_est > '%s' OR collection_dtime_est is null)
-                                  and deployment_dtime_est < '%s'
+                                  and deployment_dtime_est between '%s' and '%s'
                                   and public = FALSE"
   
-  table_3_10_private_sensors_deployed <- dbGetQuery(con, paste(sprintf(sql_string, FYSTART, FYEND),collapse="")) 
+  table_3_10_private_sensors_deployed <- dbGetQuery(con, paste(sprintf(sql_string, FYSTART, FYSTART, FYEND),collapse="")) 
   
   #Second column, first row - Sensor deployments to date (private)
   sql_string <- "select count(*) from fieldwork.deployment_full_cwl
@@ -309,7 +309,7 @@
                                   and (collection_dtime_est >= '%s'
                                       or collection_dtime_est is null) 
                                   and d.public = false"
-  table_3_10_private_systems_monitored <- dbGetQuery(con, paste(sprintf(sql_string, FYSTART, FYEND),collapse="")) 
+  table_3_10_private_systems_monitored <- dbGetQuery(con, paste(sprintf(sql_string, FYEND, FYSTART),collapse="")) 
   
   #Systems monitored to date (private)
   sql_string <- "select count(distinct smp_to_system(d.smp_id)) from fieldwork.deployment_full_cwl d
