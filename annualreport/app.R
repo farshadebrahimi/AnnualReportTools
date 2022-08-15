@@ -1,6 +1,11 @@
-
-# MARS Annual Report Stats
-# By: Farshad Ebrahimi, Last modified: 08/11/2022
+#
+# This is a Shiny web application. You can run the application by clicking
+# the 'Run App' button above.
+#
+# Find out more about building applications with Shiny here:
+#
+#    http://shiny.rstudio.com/
+#
 
 library(shiny)
 library(reactable)
@@ -475,43 +480,43 @@ server <- function(input, output) {
       
       sql_string_24 <- "select count(*) from fieldwork.deployment_full_cwl
                                   where (collection_dtime_est > '%s' OR collection_dtime_est is null)
-                                  and deployment_dtime_est < '%s'
+                                  and deployment_dtime_est between '%s' and '%s'
                                   and public = FALSE"
       
-      table_3_10_private_sensors_deployed <- dbGetQuery(con, paste(sprintf(sql_string_24, FYSTART_reactive(), FYEND_reactive()),collapse="")) 
+      table_3_10_private_sensors_deployed <- dbGetQuery(con, paste(sprintf(sql_string_24, FYSTART_reactive(), FYSTART_reactive(), FYEND_reactive()),collapse="")) 
       
       #Second column, first row - Sensor deployments to date (private)
-      sql_string_25 <- "select count(*) from fieldwork.deployment_full_cwl
+      sql_string <- "select count(*) from fieldwork.deployment_full_cwl
                                   where deployment_dtime_est < '%s'
                                   and public = FALSE"
       
-      table_3_10_private_sensors_deployed_todate <- dbGetQuery(con, paste(sprintf(sql_string_25,FYEND_reactive()),collapse="")) 
+      table_3_10_private_sensors_deployed_todate <- dbGetQuery(con, paste(sprintf(sql_string,FYEND_reactive()),collapse="")) 
       
       #Systems monitored this fiscal year (private)
       #First column, second row - Systems monitored this fiscal year
       
-      sql_string_26 <- "select count(distinct smp_to_system(d.smp_id)) from fieldwork.deployment_full_cwl d
+      sql_string_25 <- "select count(distinct smp_to_system(d.smp_id)) from fieldwork.deployment_full_cwl d
                                   where deployment_dtime_est <= '%s'
                                   and (collection_dtime_est >= '%s'
                                       or collection_dtime_est is null) 
                                   and d.public = false"
-      table_3_10_private_systems_monitored <- dbGetQuery(con, paste(sprintf(sql_string_26, FYSTART_reactive(), FYEND_reactive()),collapse="")) 
+      table_3_10_private_systems_monitored <- dbGetQuery(con, paste(sprintf(sql_string_25, FYEND_reactive(), FYSTART_reactive()),collapse="")) 
       
       #Systems monitored to date (private)
-      sql_string_27 <- "select count(distinct smp_to_system(d.smp_id)) from fieldwork.deployment_full_cwl d
+      sql_string_26 <- "select count(distinct smp_to_system(d.smp_id)) from fieldwork.deployment_full_cwl d
                                   where deployment_dtime_est <= '%s'
                                   and d.public = false"
-      table_3_10_private_systems_monitored_todate <- dbGetQuery(con, paste(sprintf(sql_string_27, FYEND_reactive()),collapse="")) 
-      
+      table_3_10_private_systems_monitored_todate <- dbGetQuery(con, paste(sprintf(sql_string_26, FYEND_reactive()),collapse="")) 
       
       #Newly monitored systems this fiscal year (private)
-      sql_string_28 <- "select count(distinct smp_to_system(newdeployments.smp_id)) FROM 
+      sql_string_27 <- "select count(distinct smp_to_system(newdeployments.smp_id)) FROM 
                                           	(select d.smp_id FROM fieldwork.deployment_full_cwl d 
                                                group BY d.smp_id, d.public
                                                having min(d.deployment_dtime_est) > '%s'
                                                and min(d.deployment_dtime_est) <= '%s'
                                                and d.public = false) newdeployments"
-      table_3_10_private_new_systems_monitored<- dbGetQuery(con, paste(sprintf(sql_string_28, FYSTART_reactive(), FYEND_reactive()),collapse=""))
+      table_3_10_private_new_systems_monitored<- dbGetQuery(con, paste(sprintf(sql_string_27, FYSTART_reactive(), FYEND_reactive()),collapse=""))
+      
       
       `This Fiscal Year`<- data.frame(c(pull(table_3_10_private_sensors_deployed),pull(table_3_10_private_systems_monitored ),pull( table_3_10_private_new_systems_monitored)))
       `To Date`<-data.frame(c(pull(table_3_10_private_sensors_deployed_todate),pull(table_3_10_private_systems_monitored_todate),NA))
