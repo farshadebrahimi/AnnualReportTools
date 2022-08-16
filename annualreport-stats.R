@@ -35,7 +35,7 @@
   ##Public systems monitored this fiscal year
   #In the text, and in table 3.1
   sql_string <- "select count(distinct smp_to_system(d.smp_id)) from fieldwork.deployment_full_cwl d
-                                            where deployment_dtime_est >= '%s'
+                                            where deployment_dtime_est between '%s' and '%s'
                                             and (collection_dtime_est <= '%s'
                                             	or collection_dtime_est is null) 
                                             and d.public = true"
@@ -44,12 +44,10 @@
   
   #Newly monitored systems this fiscal year
   #In the text, and in table 3.1 
-  sql_string <- "select count(distinct smp_to_system(newdeployments.smp_id)) FROM 
-                                          	(select d.smp_id FROM fieldwork.deployment_full_cwl d 
-                                               group BY d.smp_id, d.public
-                                               having min(d.deployment_dtime_est) > '%s'
-                                               and min(d.deployment_dtime_est) <= '%s'
-                                               and d.public = true) newdeployments"
+  sql_string <- "select count(*) from fieldwork.first_deployment_cwl f where
+                  public = true and
+                  first_deployment between '%s' and '%s'"
+  
   table_3_1_public_new_systems_monitored<- dbGetQuery(con, paste(sprintf(sql_string, FYSTART, FYEND),collapse=""))
   
   
@@ -502,6 +500,3 @@ group by cr.\"SMPType\""
                   and public = FALSE"
   
   table_3_14_private_systems_cet_todate <- dbGetQuery(con, paste(sprintf(sql_string, FYEND),collapse=""))
-   
-  
-  
