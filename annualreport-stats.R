@@ -165,6 +165,30 @@
                                                   group by sfc.asset_type"
   table_3_4_public_systems_postcon_srt_todate <-dbGetQuery(con, paste(sprintf(sql_string, FYEND),collapse=""))
   
+  #Column 1, final row: Current fiscal year total systems
+  sql_string <-"select count(*) from (select distinct sfc.asset_type, srt.system_id
+                      from fieldwork.srt_full srt
+                      left join smpid_facilityid_componentid sfc on srt.system_id = sfc.system_id
+                      where sfc.component_id is null
+                      and test_date >= '%s'
+                      and test_date <= '%s'
+                      and phase = 'Post-Construction'
+                      and public = TRUE) opossum"
+  
+  table_3_4_public_systems_postcon_srt_fy_total <-dbGetQuery(con, paste(sprintf(sql_string, FYSTART, FYEND),collapse=""))
+  
+  #Public Systems with Post-Construction SRTs Performed TO DATE
+  #Column 2: 
+  sql_string <-"select count(*) from (select distinct sfc.asset_type, srt.system_id
+                                                  from fieldwork.srt_full srt
+                                                  left join smpid_facilityid_componentid sfc on srt.system_id = sfc.system_id
+                                                  where sfc.component_id is null
+                                                  and test_date <= '%s'
+                                                  and phase = 'Post-Construction'
+                                                  and public = TRUE
+                                                  group by sfc.asset_type) raccoon"
+  table_3_4_public_systems_postcon_srt_todate_total <-dbGetQuery(con, paste(sprintf(sql_string, FYEND),collapse=""))
+  
   
   #Section 3.1.3: CET Testing
   #Table 3.5 and the 3.1.3 paragraph
@@ -289,6 +313,29 @@
                               and public = TRUE
                               group by sfc.asset_type"
   table_3_8_public_systems_duringcon_srt_todate <- dbGetQuery(con, paste(sprintf(sql_string,FYEND),collapse=""))
+  
+  #First column, last row: total this FY
+  sql_string <-"select count(*) from (select distinct sfc.asset_type, srt.system_id
+                              from fieldwork.srt_full srt
+                              left join smpid_facilityid_componentid sfc on srt.system_id = sfc.system_id
+                              where sfc.component_id is null
+                              and test_date >= '%s'
+                              and test_date <= '%s'
+                              and phase = 'Construction'
+                              and public = TRUE
+                              group by sfc.asset_type) lemur"
+  table_3_8_public_systems_duringcon_srt_fy_total <- dbGetQuery(con, paste(sprintf(sql_string, FYSTART, FYEND),collapse=""))
+  
+  #SRTs in Construction (count of systems) TO DATE total
+  sql_string <-"select count(*) from (select distinct sfc.asset_type, srt.system_id
+                              from fieldwork.srt_full srt
+                              left join smpid_facilityid_componentid sfc on srt.system_id = sfc.system_id
+                              where sfc.component_id is null
+                              and test_date <= '%s'
+                              and phase = 'Construction'
+                              and public = TRUE
+                              group by sfc.asset_type) weasel"
+  table_3_8_public_systems_duringcon_srt_todate_total <- dbGetQuery(con, paste(sprintf(sql_string,FYEND),collapse=""))
 
   
   #Section 3.3 Groundwater Level Monitoring for Public GSI
@@ -458,8 +505,8 @@
     having min(test_date) >= '%s'
     and min(test_date) <= '%s'
     and public = false) newtests
-left join planreview_view_smpsummary_crosstab_asbuiltall cr on newtests.system_id = cr.\"SMPID\"::text
-group by cr.\"SMPType\""
+    left join planreview_view_smpsummary_crosstab_asbuiltall cr on newtests.system_id = cr.\"SMPID\"::text
+    group by cr.\"SMPType\""
   
   
   
@@ -472,10 +519,26 @@ group by cr.\"SMPType\""
     group by system_id, public
     having min(test_date) <= '%s'
     and public = false) newtests
-left join planreview_view_smpsummary_crosstab_asbuiltall cr on newtests.system_id = cr.\"SMPID\"::text
-group by cr.\"SMPType\""
+    left join planreview_view_smpsummary_crosstab_asbuiltall cr on newtests.system_id = cr.\"SMPID\"::text
+    group by cr.\"SMPType\""
   
-  table_3_13_private_postcon_smp_withSRT_todate <- dbGetQuery(con, paste(sprintf(sql_string,FYEND),collapse=""))
+  #Table 3.13: Private SMPs with Post-Construction SRTs
+  #First column, last row: This fiscal year total
+  
+  sql_string <- "select count(*) from (select distinct system_id FROM fieldwork.srt_full srt
+    where test_date >= '%s'
+    and test_date <= '%s'
+    and public = false) piglet"
+  
+  table_3_13_private_postcon_smp_withSRT_fy_total <- dbGetQuery(con, paste(sprintf(sql_string, FYSTART, FYEND),collapse=""))
+  
+  #Table 3.13: Private SMPs with Post-Construction SRTs
+  #2nd column: To Date
+  sql_string <- "select count(*) from (select distinct system_id FROM fieldwork.srt_full srt
+    where test_date <= '%s'
+    and public = false) hippo"
+  
+  table_3_13_private_postcon_smp_withSRT_todate_total <- dbGetQuery(con, paste(sprintf(sql_string,FYEND),collapse=""))
   
   #Section 3.4.3: Private CET Testing
   #Table 3.14 and the 3.4.3 paragraph
@@ -500,3 +563,4 @@ group by cr.\"SMPType\""
                   and public = FALSE"
   
   table_3_14_private_systems_cet_todate <- dbGetQuery(con, paste(sprintf(sql_string, FYEND),collapse=""))
+   
