@@ -16,6 +16,8 @@ library(tidyverse)
 library(dplyr)
 library(reactablefmtr)
 library(shinydashboard)
+library(openxlsx)
+
 
 ## Database Connection to pg9
 #connection 
@@ -32,7 +34,8 @@ ui <-dashboardPage(skin = 'blue',
                   selectizeInput(
                     'fy', label = 'Fiscal Year', choices = years_vector, selected = "22",
                     options = list(maxOptions = 30)
-                  ), width = 300
+                  ),
+                    width = 300
                 ),
                 dashboardBody(
                   fluidPage(
@@ -64,7 +67,8 @@ ui <-dashboardPage(skin = 'blue',
                     reactableOutput("Table 3-13"),
                     strong("Table 3-14: Private Systems with CETs Administered"),
                     reactableOutput("Table 3-14")
-                  )
+                  ),
+                  downloadButton("dl","Export in Excel")
                   
                 )
   )
@@ -712,6 +716,20 @@ server <- function(input, output) {
             "First Version Published on 08/05/2022 by Farshad Ebrahimi",
             sep="\n")
     })
+    
+    output$dl <- downloadHandler(
+      
+      filename = function() {
+        paste("FY",input$fy,"_","AnnualReport","_",Sys.Date(),".xlsx", sep = "")
+      },
+      content = function(filename){
+        
+        df_list <- list(Table_3_1=table_31(), Table_3_2=table_32(), Table_3_3=table_33(), Table_3_4=table_34(), Table_3_5=table_35(), 
+                        Table_3_6=table_36(), Table_3_7=table_37(), Table_3_8=table_38(), Table_3_9=table_39(), Table_3_10=table_310(), 
+                        Table_3_11=table_311(), Table_3_12=table_312(), Table_3_13=table_313(), Table_3_14=table_314())
+        write.xlsx(x = df_list , file = filename, row.names = TRUE)
+      }
+    ) 
     
     
 }
